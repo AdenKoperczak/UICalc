@@ -48,6 +48,7 @@ def main(scr):
                 inputer.text = getLast(historyPos)
                 inputer.move(len(inputer.text))
         elif isinstance(inp, str):
+            historyPos = 0
             inp = inp.replace("!!", getLast())
             history.append(inp)
             inp = inp.replace("!\!", "!!")

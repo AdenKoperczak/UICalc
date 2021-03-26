@@ -27,6 +27,8 @@ class IO:
         self.scr.refresh()   
 
 class Inputer(IO):
+    esc  = ""
+    escD = False
     def render(self):
         IO.render(self)
         self.scr.move(0, self.pos)
@@ -50,14 +52,32 @@ class Inputer(IO):
             return 2
         elif ch == "KEY_DOWN":
             return 3
-        elif ch == "\x08":
+        elif ch == "\x1b":
+            self.escD = True
+        elif ch in ["\x08", "\x7f"]:
             self.text = self.text[:self.pos - 1] + self.text[self.pos:]
             self.move(-1)
         elif len(ch) == 1 and ch.isprintable():
-            self.text = self.text[:self.pos] + ch + self.text[self.pos:]
-            self.move(1)
+            if self.escD:
+                self.esc += ch
+            else:
+                self.text = self.text[:self.pos] + ch + self.text[self.pos:]
+                self.move(1)
         else:
             pass
+        if self.escD and len(self.esc) == 2:
+            out = None
+            if self.esc == "[A":
+                out = 2
+            elif self.esc == "[B":
+                out = 3
+            elif self.esc == "[C":
+                self.move(1)
+            elif self.esc == "[D":
+                self.move(-1)
+            self.esc = ""
+            self.escD = False
+            return out
         return None
 
     def getLine(self):
